@@ -3,7 +3,7 @@ include(Pkg.dir("Knet","data","mnist.jl"))
 global atype = gpu()>=0 ? KnetArray{Float32} : Array{Float32}
 
 function main()
-    𝞗 = Dict(:batchsize=>32,:epochs=>100,:ginp=>256,:genh=>[512],:disch=>[512],:optim=>"Adam(lr=0.0002)");
+    𝞗 = Dict(:batchsize=>32,:epochs=>75,:ginp=>256,:genh=>[512],:disch=>[512],:optim=>"Adam(lr=0.0002)");
     xtrn,ytrn,xtst,ytst = mnist()
     global dtrn = minibatch(xtrn, ytrn, 𝞗[:batchsize]; xtype=atype)
     global dtst = minibatch(xtst, ytst, 𝞗[:batchsize]; xtype=atype)
