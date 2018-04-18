@@ -1,12 +1,12 @@
-using Knet,Images; 
+using Knet,Images;
 include(Pkg.dir("Knet","data","mnist.jl"))
 global atype = gpu()>=0 ? KnetArray{Float32} : Array{Float32}
 
-#A generic MLP function with customizable activation functions 
+#A generic MLP function with customizable activation functions
 function mlp(w,x;p=0.0,activation=leakyrelu,outputactivation=sigm)
     for i=1:2:length(w)
         x = w[i]*dropout(mat(x),p) .+ w[i+1]   # mat() used for flatten images to vector.
-        i<length(w)-1 && (x = activation.(x)) 
+        i<length(w)-1 && (x = activation.(x))
     end
     return outputactivation.(x) #output layer
 end
@@ -17,7 +17,7 @@ D(w,x;p=0.0) = mlp(w,x;p=p)  #  Discriminator
 G(w,z;p=0.0) = mlp(w,z;p=p)  #  Generator
 𝑱d(𝗪d,x,Gz) = -mean(log.(D(𝗪d,x)+𝜀)+log.(1-D(𝗪d,Gz)+𝜀))/2 # Discriminator Loss
 𝑱g(𝗪g, 𝗪d, z) = -mean(log.(D(𝗪d,G(𝗪g,z))+𝜀))             # Generator Loss
-𝒩(input, batch) = atype(randn(Float32, input, batch))      # SampleNoise 
+𝒩(input, batch) = atype(randn(Float32, input, batch))      # SampleNoise
 
 ∇d  = grad(𝑱d) # Discriminator gradient
 ∇g  = grad(𝑱g) # Generator gradient
@@ -46,9 +46,9 @@ function runmodel(𝗪, data, 𝞗;dtst=nothing,optim=nothing,train=false,savein
         for (x,_) in data
             counter+=2B
             Gz = G(𝗪[1],𝒩(𝞗[:ginp],B)) #Fake Images
-            train ? update!(𝗪[2], ∇d(𝗪[2],x,Gz), optim[2])      : (dloss += 2B*𝑱d(𝗪[2],x,Gz)) #update discriminator          
+            train ? update!(𝗪[2], ∇d(𝗪[2],x,Gz), optim[2])      : (dloss += 2B*𝑱d(𝗪[2],x,Gz)) #update discriminator
             z=𝒩(𝞗[:ginp],2B) #Sample z from Noise
-            train ? update!(𝗪[1], ∇g(𝗪[1], 𝗪[2], z), optim[1]) : (gloss += 2B*𝑱g(𝗪[1],𝗪[2],z)) #update generator               
+            train ? update!(𝗪[1], ∇g(𝗪[1], 𝗪[2], z), optim[1]) : (gloss += 2B*𝑱g(𝗪[1],𝗪[2],z)) #update generator
         end
         train ? runmodel(𝗪,dtst,𝞗;train=false) : println((gloss/counter,dloss/counter)) #Print average losses in each epoch
         i % saveinterval == 0 && generate_and_save(𝗪,10,𝞗)  # save 10 images to generations folder
@@ -66,5 +66,4 @@ function main()
     runmodel(𝗪, dtrn, 𝞗;optim=𝚶,train=true, dtst=dtst)  # training
     𝗪,𝚶,𝞗,(dtrn,dtst)    # return weights,optimizers,options and dataset
 end
-
 main() #enjoy!
