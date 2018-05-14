@@ -4,6 +4,11 @@ An 70 lines [Knet](https://github.com/denizyuret/Knet.jl "Knet Github Repo") imp
 
 ## Usage
 
+Currently the latest version of Knet is required to run this, get it via:
+```julia
+Pkg.checkout("Knet")
+```
+Run the gan:
 ```Shell
 julia gan.jl
 ```
